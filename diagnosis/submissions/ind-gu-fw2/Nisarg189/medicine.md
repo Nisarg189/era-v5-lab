@@ -71,6 +71,8 @@ All nine medicines together change 0 and drop 0 of the 102 gold documents.
 
 Each medicine is a function `(text, url) -> (result, action)`. The action is `keep`, `fix`, `split` or `drop`.
 
+For the Data A harm test (`teams/01-data-a/tools/harm_test.py`), each section also has a function `medicine_<code>(doc)`. It calls the medicine with `doc["text"]` and `doc["url"]` and returns `(action, new_text)`. A split is given to the harm test as a fix: the parts joined by a blank line.
+
 ```python
 import re
 from urllib.parse import urlparse
@@ -82,6 +84,14 @@ DEVA = "\u0900-\u097F"                        # Devanagari block
 
 def _fix(old, new):
     return (new, "keep" if new == old else "fix")
+
+
+def _adapt(result):
+    """Turn (result, action) into the Data A format (action, new_text)."""
+    out, action = result
+    if action == "split":
+        return ("fix", "\n\n".join(out))
+    return (action, out)
 ```
 
 ## Medicine 1: C1 boilerplate lines, tags and the start dateline
@@ -108,6 +118,9 @@ def m1_c1(text, url=None):
     new = C1_DATELINE.sub("", text, count=1)
     new = C1_LINE.sub("", new)
     return _fix(text, C1_TAG.sub("", new))
+
+def medicine_c1(doc):
+    return _adapt(m1_c1(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`4af2a377c9aa5051`):
@@ -135,6 +148,9 @@ def m1_c1(text, url=None):
 ```python
 def m2_d3(text, url=None):
     return (text, "keep")
+
+def medicine_d3(doc):
+    return _adapt(m2_d3(doc["text"], doc.get("url") or ""))
 ```
 
 3. **Action:** keep (no change).
@@ -157,6 +173,9 @@ EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 def m3_f1(text, url=None):
     return _fix(text, EMAIL.sub("[EMAIL]", PHONE.sub("[PHONE]", text)))
+
+def medicine_f1(doc):
+    return _adapt(m3_f1(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (made up, because a real value must not be copied):
@@ -185,6 +204,9 @@ def m4_d4(text, url=None):
     host = (urlparse(url or "").hostname or "").lower()
     bad = host.startswith("gu.") or host.rsplit(".", 1)[-1] in FOREIGN_TLD
     return (text, "drop" if bad else "keep")
+
+def medicine_d4(doc):
+    return _adapt(m4_d4(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`3917a1b840c261f7`, `gu.mikeicemachine.com`): a product page of an ice-machine maker. It is machine-translated from English, for example `માળખું, જગ્યા બચત, સરળ હપ્તો.` The whole document is dropped.
@@ -218,6 +240,9 @@ def m5_a5(text, url=None):
     new = A5_RU.sub("રૂ", new)
     new = A5_DIGIT.sub(lambda m: m.group(0).replace("ર", "૨").replace("પ", "૫"), new)
     return _fix(text, new)
+
+def medicine_a5(doc):
+    return _adapt(m5_a5(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`41b7c9dcbe119b9b`):
@@ -245,6 +270,9 @@ G1_ORPHAN = re.compile(rf"(?<=\s)[{GU_VOWEL_SIGN}]")
 
 def m6_g1(text, url=None):
     return _fix(text, G1_ORPHAN.sub("", G1_DOUBLE.sub(r"\1", text)))
+
+def medicine_g1(doc):
+    return _adapt(m6_g1(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`631da9a005b32c3e`):
@@ -273,6 +301,9 @@ A6_ENDING = re.compile(r"[A-Za-z]+(?:ઓ)?(?:એ|ના|ની|નું|નુ|
 def m7_a6(text, url=None, limit=3):
     n = sum(not A6_ENDING.fullmatch(w) for w in A6_WORD.findall(text))
     return (text, "drop" if n >= limit else "keep")
+
+def medicine_a6(doc):
+    return _adapt(m7_a6(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`953dc7a7731c47d7`, `soydemac.com`): a Spanish Apple blog, machine-translated to Gujarati. It has `Appleપલના`, `Appleપલ` (five times) and `કer`. The whole document is dropped.
@@ -310,6 +341,9 @@ def m8_c4(text, url=None, min_part=300, min_body=200):
     bounds = [0] + sorted(set(cuts)) + [len(text)]
     parts = [text[a:b].strip() for a, b in zip(bounds, bounds[1:])]
     return ([p for p in parts if p], "split")
+
+def medicine_c4(doc):
+    return _adapt(m8_c4(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`5850b7f05b243ec4`): one document with three Rafale articles. Each starts with `(એજન્સી) નવી દિલ્હી, તા.૧૪`. After the split, there are three documents of 1,887, 1,356 and 903 characters.
@@ -335,6 +369,9 @@ C5_LINE = re.compile(r"^\s*(?:Tags\s*:|Android\s*:|iOS\s*:).*\n?|^\s*https?://\S
 
 def m9_c5(text, url=None):
     return _fix(text, C5_LINE.sub("", text))
+
+def medicine_c5(doc):
+    return _adapt(m9_c5(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`98b9ca997dc64e33`):
@@ -367,6 +404,9 @@ def m10_a3(text, url=None):
         new = new.replace(a, b)
     new = A3_LOWQ_RUP.sub("રૂપ", new)
     return _fix(text, A3_LOWQ.sub("રુ", new))
+
+def medicine_a3(doc):
+    return _adapt(m10_a3(doc["text"], doc.get("url") or ""))
 ```
 
    **Example** (`d071829b830530e1` and `355a8c8963377a73`):
