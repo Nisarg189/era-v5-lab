@@ -6,11 +6,12 @@ Write one section for each disease that you found more than five times.
 
 - **Pack:** 500 documents, 1,206,370 characters. Labels are in `labels.csv` (348 fix, 102 clean, 50 drop).
 - **Count:** a disease is counted in evidence items. Ten codes have more than five items, so this sheet has ten sections: nine medicines and one "no medicine" (D3).
-- **Gold set (provisional):** no Gujarati gold set is published yet. The gold set here is the 102 documents in this pack that `labels.csv` marks `clean`. One reader marked them, not two. When the Data A or Data B team publishes the Gujarati gold set, the harm tests must be run again on it.
-- **Limits of this harm test:**
-  - The same reader made the labels and the gold set. If a disease was missed in a document marked `clean`, the test cannot see it.
-  - The rules were built on these same 500 documents. When a rule hit a gold document, the rule was changed until it passed. So 0% is the best case. On new Gujarati text, the rules will probably change or drop some good documents. The official gold set will give the real numbers.
-- **1% limit:** 1% of 102 documents is 1.02 documents. A medicine that changes or drops two or more gold documents fails.
+- **Harm test for Gate 1: not testable.** There is no Gujarati gold set. On 31 Oct, `teams/02-data-b/gold/` on `main` has no Gujarati file, `gold_coverage.csv` has no `ind-gu-fw2` row, and no open or closed PR adds one. So each medicine below is "not testable: no Gujarati gold set" (harm-test exit code 2). This is the TSAI rule for a language with no gold set. When Data B publishes the Gujarati gold set, the harm tests must be run on it.
+- **Own check (not the Gate 1 test):** as extra information, each medicine was also run on the 102 documents in this pack that `labels.csv` marks `clean`. One reader marked them, not two. The "Own check" numbers below come from this set.
+- **Limits of the own check:**
+  - The same reader made the labels and the own clean set. If a disease was missed in a document marked `clean`, the test cannot see it.
+  - The rules were built on these same 500 documents. When a rule hit an own clean document, the rule was changed until it passed. So 0% is the best case. On new Gujarati text, the rules will probably change or drop some good documents. The official gold set will give the real numbers.
+- **1% limit:** a medicine passes if it changes or drops at most max(1 document, 1%) of the gold set. On the 102 own clean documents, this is 1 document.
 - **Acted / labelled / recall:** "acted" is the number of documents that the medicine changes, splits or drops. "Labelled" is how many of those documents have the code in `labels.csv`. "Recall" is the share of the labelled documents that the medicine finds.
 
 ## Fix or drop: the policy
@@ -50,22 +51,22 @@ What we lose that we did not want to lose:
 - **Fixes:** 711 of the removed characters are outside a labelled span. When checked one by one, they are boilerplate that the labels did not mark (more "View this post on Instagram" and "આ પણ વાંચો" lines), public phone numbers, and doubled signs. No article sentence is removed.
 - **What we do not catch:** 28 of the 50 `drop` documents stay. These are machine-translated pages on ordinary `.com` domains, adult clickbait and listing pages. They need more drop rules.
 
-All nine medicines together change 0 and drop 0 of the 102 gold documents.
+Harm test: not testable, because there is no Gujarati gold set. Own check: all nine medicines together change 0 and drop 0 of the 102 own clean documents.
 
 ## Summary
 
-| Medicine | Code | Items / docs | Action | Acted | Labelled | Recall | Gold changed | Gold dropped | Result |
+| Medicine | Code | Items / docs | Action | Acted | Labelled | Recall | Own check: changed | Own check: dropped | Harm test (Gate 1) |
 |---|---|---|---|---|---|---|---|---|---|
-| M1 | C1 | 482 / 290 | fix: remove lines and tags | 131 | 131 | 45% | 0 | 0 | pass |
+| M1 | C1 | 482 / 290 | fix: remove lines and tags | 131 | 131 | 45% | 0 | 0 | not testable: no Gujarati gold set |
 | M2 | D3 | 481 / 101 | no medicine | 0 | 0 | – | 0 | 0 | – |
-| M3 | F1 | 624 / 85 | fix: mask | 19 | 7 | 8% | 0 | 0 | pass |
-| M4 | D4 | 72 / 40 | drop document | 16 | 15 | 38% | 0 | 0 | pass |
-| M5 | A5 | 116 / 33 | fix: replace letters | 24 | 23 | 70% | 0 | 0 | pass |
-| M6 | G1 | 42 / 22 | fix: remove signs | 18 | 18 | 82% | 0 | 0 | pass |
-| M7 | A6 | 54 / 16 | drop document | 9 | 9 | 56% | 0 | 0 | pass |
-| M8 | C4 | 13 / 10 | split document | 1 | 1 | 10% | 0 | 0 | pass |
-| M9 | C5 | 17 / 12 | fix: remove lines | 24 | 6 | 50% | 0 | 0 | pass |
-| M10 | A3 | 6 / 3 | fix: replace characters | 3 | 2 | 67% | 0 | 0 | pass |
+| M3 | F1 | 624 / 85 | fix: mask | 19 | 7 | 8% | 0 | 0 | not testable: no Gujarati gold set |
+| M4 | D4 | 72 / 40 | drop document | 16 | 15 | 38% | 0 | 0 | not testable: no Gujarati gold set |
+| M5 | A5 | 116 / 33 | fix: replace letters | 24 | 23 | 70% | 0 | 0 | not testable: no Gujarati gold set |
+| M6 | G1 | 42 / 22 | fix: remove signs | 18 | 18 | 82% | 0 | 0 | not testable: no Gujarati gold set |
+| M7 | A6 | 54 / 16 | drop document | 9 | 9 | 56% | 0 | 0 | not testable: no Gujarati gold set |
+| M8 | C4 | 13 / 10 | split document | 1 | 1 | 10% | 0 | 0 | not testable: no Gujarati gold set |
+| M9 | C5 | 17 / 12 | fix: remove lines | 24 | 6 | 50% | 0 | 0 | not testable: no Gujarati gold set |
+| M10 | A3 | 6 / 3 | fix: replace characters | 3 | 2 | 67% | 0 | 0 | not testable: no Gujarati gold set |
 
 ## Shared code
 
@@ -128,7 +129,7 @@ def medicine_c1(doc):
    - After: `… પર સૌની નજર છે.⏎સિક્યોરિટી ડિપોઝિટની …`
 
 3. **Action:** fix. Only the template line or the tag is removed. The article stays.
-4. **Harm test:** 0 gold documents changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - The tag is removed alone, not with its line. In `4af2a377c9aa5051` the tag is joined to the end of each paragraph, so a line rule would remove about 4,000 characters of the article.
    - The medicine removes only the "read also" header line. The headline list under it stays.
@@ -154,7 +155,7 @@ def medicine_d3(doc):
 ```
 
 3. **Action:** keep (no change).
-4. **Harm test:** not needed. The medicine changes nothing, so it changes 0 and drops 0 gold documents.
+4. **Harm test:** not testable: no Gujarati gold set. The medicine changes nothing, so it can change or drop no gold document.
 5. **Side effects:**
    - None from this medicine. A document with D3 and another disease is handled by the medicine for that disease. For example, an English footer line is removed by M1 (C1), and a machine-translated page is dropped by M4 or M7.
 
@@ -183,7 +184,7 @@ def medicine_f1(doc):
    - After: `વધુ માહિતી માટે મો. [PHONE] પર સંપર્ક કરો`
 
 3. **Action:** fix (mask). The sentence stays. Only the number or the email changes.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - The medicine does not find names, and names are most of the F1 items. Recall is 8%. Names of private people need a named-entity model and a list of public people.
    - It also masks public numbers that are not F1: desk numbers, helplines, business numbers and placeholder emails (12 documents in the pack). The model loses only the digits, and privacy is not harmed.
@@ -212,7 +213,7 @@ def medicine_d4(doc):
    **Example** (`3917a1b840c261f7`, `gu.mikeicemachine.com`): a product page of an ice-machine maker. It is machine-translated from English, for example `માળખું, જગ્યા બચત, સરળ હપ્તો.` The whole document is dropped.
 
 3. **Action:** drop the whole document. A fix cannot help, because every sentence is machine-translated.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - Machine-translated pages on ordinary `.com` domains (for example Spanish tech blogs) are not found. Recall is 38%.
    - Lost: 16 documents, 83,052 characters (6.9% of the pack). 14 of them are labelled `drop`. The other 2 are machine-translated pages that are labelled `fix` (3,629 characters).
@@ -250,7 +251,7 @@ def medicine_a5(doc):
    - After: `તેને જોતા અમુક` and `જો કે, સરકાર`
 
 3. **Action:** fix (replace letters). No text is lost.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - A number that is only `ર` or `પ` with no real digit (for example `તા.પ`) is not fixed.
    - Other legacy spellings (a reph in the wrong place, `ઢ` written as a comma) are not fixed.
@@ -280,7 +281,7 @@ def medicine_g1(doc):
    - After: `જણાવ્યું કે, નાવ`
 
 3. **Action:** fix (remove the extra sign). No text is lost.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - Two different signs in the wrong order (for example `ુૃ`, `ો્`) are not fixed.
    - If the sign after a space belongs to the word before it (a broken word), the medicine removes the sign. It cannot join the word again.
@@ -309,7 +310,7 @@ def medicine_a6(doc):
    **Example** (`953dc7a7731c47d7`, `soydemac.com`): a Spanish Apple blog, machine-translated to Gujarati. It has `Appleપલના`, `Appleપલ` (five times) and `કer`. The whole document is dropped.
 
 3. **Action:** drop the whole document. Removing the broken words leaves broken sentences, because these words come with bad machine translation of the whole page.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass. Without the case-ending rule, it drops 2 gold documents (2.0%) and fails.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%). Without the case-ending rule, it drops 2 own clean documents (2.0%) and fails the own check.
 5. **Side effects:**
    - All 9 documents that it drops are labelled `drop`. Lost: 37,019 characters (3.1% of the pack) after M4.
    - An A6 item that is a Latin fragment with spaces around it (for example `er`, `oc`) is not counted.
@@ -349,7 +350,7 @@ def medicine_c4(doc):
    **Example** (`5850b7f05b243ec4`): one document with three Rafale articles. Each starts with `(એજન્સી) નવી દિલ્હી, તા.૧૪`. After the split, there are three documents of 1,887, 1,356 and 903 characters.
 
 3. **Action:** split into one document per article. This is a fix: no text is lost.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - The medicine splits, and does not cut. A cut would throw away the second and third articles (2,260 characters of good text).
    - Recall is 10%. A joined article with no dateline and no marker is not found. A "whole document" C4 (a home page or a list page) needs a drop rule for each page type.
@@ -379,7 +380,7 @@ def medicine_c5(doc):
    - After: `… ન્યૂઝ18 ગુજરાતી પર⏎`
 
 3. **Action:** fix (remove the line).
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - 18 documents are changed that have no C5 label. In all of them, it removes a News18 `Tags:` line inside the C1 span at the end of the document. The change is correct, but the labels count it under C1.
    - A tag listing page or a search results page (a "whole document" C5) is not found.
@@ -414,7 +415,7 @@ def medicine_a3(doc):
    - After: `ગુરુદાસ કામત` and `બ્રહ્મા સ્વરૂપ છે`
 
 3. **Action:** fix (replace characters). No text is lost.
-4. **Harm test:** 0 changed, 0 dropped (0.0%). Pass.
+4. **Harm test:** not testable: no Gujarati gold set. Own check on the 102 own clean documents: 0 changed, 0 dropped (0.0%).
 5. **Side effects:**
    - In the source font, U+201A can stand for `રુ` or `રૂ`. Only `‚પ` (`રૂપ`, `સ્વરૂપ`) is known to be `રૂ`. Other words get `રુ`, and some of them need `રૂ`.
    - `355a8c8963377a73` has the same mojibake but no A3 label.
