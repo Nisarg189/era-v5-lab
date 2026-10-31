@@ -47,6 +47,25 @@ The script checks the sha256 of every file before it starts. It needs about 1.1 
 Build and run on Linux (cluster, Colab, Kaggle). On Windows, `../fingerprints/.gitattributes` makes Git keep the
 fingerprint files byte for byte. Without it, Git with `core.autocrlf=true` checks them out as CRLF, and every sha256 check fails.
 
+## Normalize
+
+Before the cut into runs, the text of an item and of a document is normalized, so that
+`Janet’s DUCKS, lay 16-eggs!` and `janet's ducks lay 16 eggs` give the same words. The build and
+the check must use the same normalizer, or the hashes do not match and the check finds nothing.
+
+Each set names its normalizer in `MANIFEST.json` (`normalize_id`, also in each benchmark
+`MANIFEST.json`). `decontam_check.py` reads that ID and uses the same normalizer. An unknown ID,
+or a set with two normalizers, is refused. The normalizers are in `normalize.py`:
+
+| ID | Set | What it does |
+|---|---|---|
+| `g9-v1` | v1 | Words are runs of Unicode letters, marks and numbers. Each word: NFKC, then lower case. |
+| `spec-v1` | v2 | The spec v1 normalize function of Team 1, then the `g9-v1` steps. Training text goes through spec v1, so benchmark text must go through it too. |
+
+```
+python build_fingerprints.py --data-dir ~/bench-cache --version v2 --normalize spec-v1
+```
+
 ## The fingerprint set (v1)
 
 `../fingerprints/v1/`: `MANIFEST.json` (rules, benchmark revisions, item counts, `set_sha256`,
